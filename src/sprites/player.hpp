@@ -17,13 +17,17 @@ public:
     void set_bullet_rate(int bullet_rate);
     void set_bullet_health(int bullet_health);
 
+    void lock();
+    void unlock();
     void update() override;
-    bool collided_with(Sprite& sprite);
+    bool collided_with(std::shared_ptr<Sprite> sprite);
 
     void subscribe(Channel<std::shared_ptr<KBState>> receiver);
     void unsubscribe();
 
-    std::atomic<bool> quit;
+    std::vector<std::shared_ptr<Bullet>>& get_bullets();
+
+    std::atomic<bool> quit_{false};
 
 private:
     void move();
@@ -31,6 +35,7 @@ private:
     void update_bullets();
 
     std::mutex mtx_;
+
     std::unique_ptr<std::thread> t_{nullptr};
     std::unique_ptr<Channel<std::shared_ptr<KBState>>> kbstate_rx_{nullptr};
 

@@ -5,7 +5,7 @@
 #include "bullet.hpp"
 #include "../factory/texture_factory.hpp"
 
-class Enemy : Standalone {
+class Enemy : public Standalone {
 public:
     Enemy(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory);
 
@@ -13,10 +13,12 @@ public:
     void set_bullet_dy(float dy);
     void set_bullet_health(int bullet_health);
 
+    void fire();
     void update() override;
 
+    std::vector<std::shared_ptr<Bullet>>& get_bullets();
+
 private:
-    void fire();
     void update_bullets();
 
     std::vector<std::shared_ptr<Bullet>> bullets_;

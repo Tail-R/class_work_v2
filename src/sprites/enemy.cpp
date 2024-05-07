@@ -10,6 +10,7 @@ void Enemy::set_bullet_health(int bullet_health) { bullet_health_ = bullet_healt
 void Enemy::update() {
     move();
     update_bullets();
+    load_texture();
     render();
 }
 
@@ -29,7 +30,7 @@ void Enemy::fire() {
     bullet->set_dx(bullet_dx_);
     bullet->set_dy(bullet_dy_);
     bullet->set_health(bullet_health_);
-    bullet->load_texture_from_path(ENEMY_BULLET_TEXTURE);
+    bullet->set_texture_path(ENEMY_BULLET_TEXTURE);
 
     bullets_.push_back(bullet);
 }
@@ -40,7 +41,7 @@ void Enemy::update_bullets() {
             bullets_.begin(),
             bullets_.end(),
             [] (std::shared_ptr<Bullet> bullet) {
-                bool expr1 = bullet->stick_outed();
+                bool expr1 = bullet->stickouted();
                 bool expr2 = bullet->get_health() < 1;
 
                 return expr1 || expr2;
@@ -51,4 +52,8 @@ void Enemy::update_bullets() {
 
     for (auto bullet : bullets_)
         bullet->update();
+}
+
+std::vector<std::shared_ptr<Bullet>>& Enemy::get_bullets() {
+    return bullets_;
 }

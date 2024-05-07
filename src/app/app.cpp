@@ -60,7 +60,7 @@ bool App::prelude() {
                 or -1 to initialize the first one supporting the requested flags
                  */
                 -1,
-                SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+                RENDERER_FLAGS
             );
 
             if (ctx_ == nullptr)
@@ -74,9 +74,7 @@ bool App::prelude() {
 
                 SDL_SetRenderDrawColor(ctx_, 0, 0, 0, 255);
 
-                auto img_flags = IMG_INIT_PNG | IMG_INIT_JPG;
-
-                if (IMG_Init(img_flags) != img_flags)
+                if (IMG_Init(IMG_FLAGS) != IMG_FLAGS)
                 {
                     success = false;
                     debug_log("FATAL: Failed to initialize the SDL image subsystem");

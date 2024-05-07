@@ -17,9 +17,10 @@ void Player::set_bullet_dy(float bullet_dy) { bullet_dy_ = bullet_dy; }
 void Player::set_bullet_rate(int bullet_rate) { bullet_rate_ = bullet_rate; }
 void Player::set_bullet_health(int bullet_health) { bullet_health_ = bullet_health; }
 
-void Player::update() {
-    std::lock_guard<std::mutex> lock(mtx_);
+void Player::lock() { mtx_.lock(); }
+void Player::unlock() { mtx_.unlock(); }
 
+void Player::update() {
     move();
 
     if (firing_ && (bullet_timer_ == 0))
@@ -37,9 +38,9 @@ void Player::update() {
     render();
 }
 
-bool Player::collided_with(Sprite& sprite) {
+bool Player::collided_with(std::shared_ptr<Sprite> sprite) {
     auto s1 = get_region();
-    auto s2 = sprite.get_region();
+    auto s2 = sprite->get_region();
 
     bool expr1 = (s1.x <= s2.x + s2.w) && (s2.x <= s1.x + s1.w);
     bool expr2 = (s1.y <= s2.y + s2.h) && (s2.y <= s1.y + s1.h);
@@ -65,7 +66,7 @@ void Player::subscribe(Channel<std::shared_ptr<KBState>> receiver) {
             }
             else if (auto keys = kbstate_rx_->recv(); keys != std::nullopt)
             {
-                std::lock_guard<std::mutex> lock(mtx_);
+                lock();
 
                 if ((*keys)->up == Key::PRESSED)
                 {
@@ -102,8 +103,10 @@ void Player::subscribe(Channel<std::shared_ptr<KBState>> receiver) {
                     firing_ = false;
                 }
 
+                unlock();
+
                 if ((*keys)->QUIT) {
-                    quit.store(true);
+                    quit_.store(true);
                     return;
                 }
             }
@@ -171,7 +174,7 @@ void Player::update_bullets() {
             bullets_.begin(),
             bullets_.end(),
             [] (std::shared_ptr<Bullet> bullet) {
-                bool expr1 = bullet->stick_outed();
+                bool expr1 = bullet->stickouted();
                 bool expr2 = bullet->get_health() < 1;
 
                 return expr1 || expr2;
@@ -182,4 +185,8 @@ void Player::update_bullets() {
 
     for (auto bullet : bullets_)
         bullet->update();
+}
+
+std::vector<std::shared_ptr<Bullet>>& Player::get_bullets() {
+    return bullets_;
 }

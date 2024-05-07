@@ -12,6 +12,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <cmath>
 #include <condition_variable>
 #include <optional>
 #include <format>
@@ -26,19 +27,28 @@ constexpr int WINDOW_HEIGHT = 800;
 constexpr int WINDOW_FPS = 60;
 constexpr int WINDOW_FRAME_LENGTH = 1000 / WINDOW_FPS;
 
+// Renderer properties
+constexpr SDL_RendererFlags RENDERER_FLAGS = SDL_RENDERER_ACCELERATED;
+constexpr Uint32 IMG_FLAGS = IMG_INIT_PNG | IMG_INIT_JPG;
+
 // Player properties
-constexpr float PLAYER_WIDTH = 20;
-constexpr float PLAYER_HEIGHT = 20;
-constexpr float PLAYER_BULLET_WIDTH = 10;
-constexpr float PLAYER_BULLET_HEIGHT = 10;
+constexpr float PLAYER_WIDTH = 20.0;
+constexpr float PLAYER_HEIGHT = 20.0;
+constexpr float PLAYER_BASE_SPEED = 5.0;
+constexpr float PLAYER_BULLET_WIDTH = 10.0;
+constexpr float PLAYER_BULLET_HEIGHT = 10.0;
+constexpr float PLAYER_BULLET_DX = 0.0;
+constexpr float PLAYER_BULLET_DY = -10.0;
+constexpr int PLAYER_BULLET_RATE = 20;
+constexpr int PLAYER_BULLET_HEALTH = 1;
 constexpr std::string_view PLAYER_TEXTURE = "images/player_bullet.png";
 constexpr std::string_view PLAYER_BULLET_TEXTURE = "images/player_bullet.png";
 
 // Enemy properties
-constexpr float ENEMY_WIDTH = PLAYER_WIDTH;
-constexpr float ENEMY_HEIGHT = PLAYER_HEIGHT;
-constexpr float ENEMY_BULLET_WIDTH = PLAYER_BULLET_WIDTH;
-constexpr float ENEMY_BULLET_HEIGHT = PLAYER_BULLET_HEIGHT;
+constexpr float ENEMY_WIDTH = 20.0;
+constexpr float ENEMY_HEIGHT = 20.0;
+constexpr float ENEMY_BULLET_WIDTH = 10.0;
+constexpr float ENEMY_BULLET_HEIGHT = 10.0;
 constexpr std::string_view ENEMY_TEXTURE = "images/enemy_bullet.png";
 constexpr std::string_view ENEMY_BULLET_TEXTURE = "images/enemy_bullet.png";
 

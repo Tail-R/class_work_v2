@@ -18,6 +18,8 @@ public:
     SDL_Renderer* get_renderer();
     std::shared_ptr<TextureFactory> get_factory();
 
+    std::atomic<bool> quit_{false};
+
 private:
     virtual void spawn_worker();
 

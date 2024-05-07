@@ -13,12 +13,12 @@ public:
 
     void update() override;
     void move();
-    bool collided_with(Sprite& sprite);
-    bool stick_outed();
+    bool collided_with(std::shared_ptr<Sprite> sprite);
+    bool stickouted();
 
 private:
     float dx_{0.0};
     float dy_{0.0};
 
-    bool stick_outed_{false};
+    bool stickouted_{false};
 };

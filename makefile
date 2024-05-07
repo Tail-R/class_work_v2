@@ -4,6 +4,7 @@ OBJS = src/main.cpp \
 	src/sprites/player.cpp \
 	src/sprites/standalone.cpp \
 	src/sprites/enemy.cpp \
+	src/sprites/enemies.cpp \
 	src/sprites/bullet.cpp \
 	src/factory/texture_factory.cpp \
 	src/events/keyevent.cpp \

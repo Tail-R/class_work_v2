@@ -12,6 +12,8 @@ public:
     void set_health(int health);
     int get_health();
 
+    void update() override;
+
 private:
     int health_{0};
 };

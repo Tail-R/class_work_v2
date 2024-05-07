@@ -11,9 +11,9 @@ void Standalone::update() {
     render();
 }
 
-bool Standalone::collided_with(Sprite& sprite) {
+bool Standalone::collided_with(std::shared_ptr<Sprite> sprite) {
     auto s1 = get_region();
-    auto s2 = sprite.get_region();
+    auto s2 = sprite->get_region();
 
     bool expr1 = (s1.x <= s2.x + s2.w) && (s2.x <= s1.x + s1.w);
     bool expr2 = (s1.y <= s2.y + s2.h) && (s2.y <= s1.y + s1.h);
@@ -21,7 +21,7 @@ bool Standalone::collided_with(Sprite& sprite) {
     return expr1 && expr2;
 }
 
-bool Standalone::stick_outed() { return stick_outed_; }
+bool Standalone::stickouted() { return stickouted_; }
 
 void Standalone::move() {
     auto region = get_region();
@@ -32,15 +32,8 @@ void Standalone::move() {
     bool expr1 = (next_x >= 0) && (WINDOW_WIDTH + region.w >= next_x);
     bool expr2 = (next_y >= 0) && (WINDOW_HEIGHT + region.h >= next_y);
 
-    if (expr1 && expr2)
-    {
-        set_x(next_x);
-        set_y(next_y);
+    set_x(next_x);
+    set_y(next_y);
 
-        stick_outed_ = false;
-    }
-    else
-    {
-        stick_outed_ = true;
-    }
+    stickouted_ = !(expr1 && expr2);
 }
