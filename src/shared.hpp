@@ -3,6 +3,26 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+#include <boost/json.hpp>
+
+// Define a conversion from the SDL_FRect to boost::json::value
+// void tag_invoke(
+//     boost::json::value_from_tag,
+//     boost::json::value& jv,
+//     SDL_FRect const& region
+//     ) {
+//
+//     jv = {
+//         {"x", region.x},
+//         {"y", region.y},
+//         {"w", region.w},
+//         {"h", region.h}
+//     };
+// }
+
+#include <sys/socket.h>
+#include <sys/un.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -17,8 +37,6 @@
 #include <optional>
 #include <format>
 #include <chrono>
-
-constexpr std::string_view TIME_ZONE = "Asia/Tokyo";
 
 // Window properties
 constexpr std::string_view WINDOW_TITLE = "Bullet Hell";
@@ -51,6 +69,11 @@ constexpr float ENEMY_BULLET_WIDTH = 10.0;
 constexpr float ENEMY_BULLET_HEIGHT = 10.0;
 constexpr std::string_view ENEMY_TEXTURE = "images/enemy_bullet.png";
 constexpr std::string_view ENEMY_BULLET_TEXTURE = "images/enemy_bullet.png";
+
+// Misc
+constexpr std::string_view TIME_ZONE = "Asia/Tokyo";
+constexpr const char* SOCKET_NAME = "/tmp/mysocket.sock";
+constexpr int SOCKET_BUFF_SIZE = 256;
 
 #define DEBUG
 

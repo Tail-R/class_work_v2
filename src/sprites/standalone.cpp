@@ -5,23 +5,12 @@ Standalone::Standalone(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factor
 
 void Standalone::set_dx(float dx) { dx_ = dx; }
 void Standalone::set_dy(float dy) { dy_ = dy; }
+void Standalone::set_health(int health) { health_ = health > 0 ? health : 0; }
 
 void Standalone::update() {
     move();
     render();
 }
-
-bool Standalone::collided_with(std::shared_ptr<Sprite> sprite) {
-    auto s1 = get_region();
-    auto s2 = sprite->get_region();
-
-    bool expr1 = (s1.x <= s2.x + s2.w) && (s2.x <= s1.x + s1.w);
-    bool expr2 = (s1.y <= s2.y + s2.h) && (s2.y <= s1.y + s1.h);
-
-    return expr1 && expr2;
-}
-
-bool Standalone::stickouted() { return stickouted_; }
 
 void Standalone::move() {
     auto region = get_region();
@@ -37,3 +26,16 @@ void Standalone::move() {
 
     stickouted_ = !(expr1 && expr2);
 }
+
+bool Standalone::collided_with(std::shared_ptr<Sprite> sprite) {
+    auto s1 = get_region();
+    auto s2 = sprite->get_region();
+
+    bool expr1 = (s1.x <= s2.x + s2.w) && (s2.x <= s1.x + s1.w);
+    bool expr2 = (s1.y <= s2.y + s2.h) && (s2.y <= s1.y + s1.h);
+
+    return expr1 && expr2;
+}
+
+bool Standalone::stickouted() { return stickouted_; }
+int Standalone::get_health() { return health_; }

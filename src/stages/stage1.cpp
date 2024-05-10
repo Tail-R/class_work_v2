@@ -1,5 +1,19 @@
 #include "stage1.hpp"
 
+void tag_invoke(
+    boost::json::value_from_tag,
+    boost::json::value& jv,
+    SDL_FRect const& region
+    ) {
+
+    jv = {
+        {"x", region.x},
+        {"y", region.y},
+        {"w", region.w},
+        {"h", region.h}
+    };
+}
+
 Stage1::Stage1(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory)
     : Stage{ctx, factory} {
 
@@ -18,6 +32,7 @@ Stage1::Stage1(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory)
     player_->set_bullet_dy(PLAYER_BULLET_DY);
     player_->set_bullet_rate(PLAYER_BULLET_RATE);
     player_->set_bullet_health(PLAYER_BULLET_HEALTH);
+    player_->set_stage1(this);
     player_->load_texture_from_path(PLAYER_TEXTURE);
 
     // Enemies
@@ -30,6 +45,12 @@ Stage1::~Stage1() {
             t_->join();
 }
 
+void apply_damage_by_collision(
+    std::shared_ptr<Player>,
+    std::shared_ptr<Enemies>
+    ) {
+}
+
 StageTag Stage1::start() {
     auto ctx = get_renderer();
     auto factory = get_factory();
@@ -40,6 +61,10 @@ StageTag Stage1::start() {
 
     // Glue above thread to the player object
     player_->subscribe(std::move(rx));
+
+    // Wait until the client to connect
+    auto sock = Socket();
+    sock.accept_client();
 
     auto prev_ticks = SDL_GetTicks();
 
@@ -58,30 +83,17 @@ StageTag Stage1::start() {
         player_->unlock();
 
         enemies_->lock();
-        auto& sprites = enemies_->get_sprites();
-
-        for (auto enemy : sprites) {
-            auto& bullets = enemy->get_bullets();
-
-            for (auto bullet : bullets) {
-                player_-> lock();
-
-                if (player_->collided_with(bullet)) {
-                    bullet->set_health(0);
-                    player_->set_x(
-                        (WINDOW_WIDTH / 2) + (PLAYER_WIDTH / 2)
-                    );
-                    player_->set_y(
-                        WINDOW_HEIGHT - (PLAYER_HEIGHT * 2)
-                    );
-                }
-
-                player_->unlock();
-            }
-        }
-
         enemies_->update();
         enemies_->unlock();
+
+        // Send data via socket
+        player_->lock();
+        auto region = player_->get_region();
+        player_->unlock();
+
+        auto data = boost::json::value_from(region);
+        auto data_str = boost::json::serialize(data);
+        sock.send_data(data_str);
 
         // Calculate the delay manually
         auto current_ticks = SDL_GetTicks();
@@ -116,50 +128,11 @@ void Stage1::spawn_worker() {
 
         auto ctx = get_renderer();
         auto factory = get_factory();
-
-        /* Phase 1 */
         auto enemy = std::make_shared<Enemy>(ctx, factory);
 
-        enemy->set_region(
-            (WINDOW_WIDTH / 2) + (ENEMY_WIDTH / 2),
-            ENEMY_HEIGHT,
-            ENEMY_WIDTH,
-            ENEMY_HEIGHT
-        );
+        SDL_Delay(1000);
 
-        enemy->set_dx(0.0);
-        enemy->set_dy(0.0);
-        enemy->set_texture_path(ENEMY_TEXTURE);
-        enemy->set_bullet_health(1);
-
-        enemies_->lock();
-        auto& sprites = enemies_->get_sprites();
-        sprites.push_back(enemy);
-        enemies_->unlock();
-
-        // circle shot
-        auto flames = 600;
-        while (flames--) {
-            if (quit_.load())
-                return;
-
-            if (flames % 60 == 0) {
-                enemies_->lock();
-                for (auto enemy : sprites) {
-                    for (float i = 0, two_pi = M_PI * 2; i < two_pi; i+=two_pi / 20) {
-                        enemy->set_bullet_dx(cos(i) * 1.2);
-                        enemy->set_bullet_dy(sin(i) * 1.2);
-                        enemy->fire();
-                    }
-                }
-
-                enemies_->unlock();
-            }
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(16));
-        }
-
-        debug_log("DEBUG: Stage 1 worker thread end");
+        debug_log("DEBUG: Stage 1 worker thread has been successfully terminated");
     });
 
     if (t_ != nullptr)
@@ -168,6 +141,6 @@ void Stage1::spawn_worker() {
     }
     else
     {
-        debug_log("FATAL: Failed to spawn a worker thread in stage 1");
+        debug_log("FATAL: Failed to spawn a stage 1 worker thread");
     }
 }

@@ -3,6 +3,9 @@
 #include "sprite.hpp"
 #include "bullet.hpp"
 #include "../events/keyevent.hpp"
+#include "../stages/stage1.hpp"
+
+class Stage1;
 
 class Player : public Sprite {
 public:
@@ -16,6 +19,8 @@ public:
     void set_bullet_dy(float bullet_dy);
     void set_bullet_rate(int bullet_rate);
     void set_bullet_health(int bullet_health);
+    void set_health(int health);
+    void set_stage1(Stage1* stage1);
 
     void lock();
     void unlock();
@@ -42,6 +47,7 @@ private:
     float dx_{0.0};
     float dy_{0.0};
     float base_speed_{0.0};
+    int health_{0};
 
     std::vector<std::shared_ptr<Bullet>> bullets_;
     bool firing_{false};
@@ -50,4 +56,6 @@ private:
     int bullet_health_{0};
     int bullet_timer_{0};
     int bullet_rate_{0};
+
+    Stage1* stage1_{nullptr};
 };

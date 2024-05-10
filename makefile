@@ -9,13 +9,14 @@ OBJS = src/main.cpp \
 	src/factory/texture_factory.cpp \
 	src/events/keyevent.cpp \
 	src/stages/stage.cpp \
-	src/stages/stage1.cpp
+	src/stages/stage1.cpp \
+	src/socket/socket.cpp
 
 C = g++
 
 C_FLAGS = -std=c++20 -Wall -Wextra
 
-LINKER_FLAGS = -l SDL2 -l SDL2_image
+LINKER_FLAGS = -l SDL2 -l SDL2_image -l boost_json
 
 TARGET = build/main
 

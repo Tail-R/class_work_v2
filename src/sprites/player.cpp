@@ -16,6 +16,7 @@ void Player::set_bullet_dx(float bullet_dx) { bullet_dx_ = bullet_dx; }
 void Player::set_bullet_dy(float bullet_dy) { bullet_dy_ = bullet_dy; }
 void Player::set_bullet_rate(int bullet_rate) { bullet_rate_ = bullet_rate; }
 void Player::set_bullet_health(int bullet_health) { bullet_health_ = bullet_health; }
+void Player::set_stage1(Stage1* stage1) { stage1_ = stage1; }
 
 void Player::lock() { mtx_.lock(); }
 void Player::unlock() { mtx_.unlock(); }

@@ -5,6 +5,9 @@
 #include "../sprites/player.hpp"
 #include "../sprites/enemy.hpp"
 #include "../sprites/enemies.hpp"
+#include "../socket/socket.hpp"
+
+class Player;
 
 class Stage1 : Stage {
 public:
