@@ -1,5 +1,6 @@
 #include "stage1.hpp"
 
+// Define a conversion from the SDL_FRect to a boost::json::value
 void tag_invoke(
     boost::json::value_from_tag,
     boost::json::value& jv,
@@ -18,7 +19,7 @@ Stage1::Stage1(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory)
     : Stage{ctx, factory} {
 
     // Player
-    player_ = std::make_unique<Player>(ctx, factory);
+    player_ = std::make_shared<Player>(ctx, factory);
 
     player_->set_region(
         (WINDOW_WIDTH / 2) + (PLAYER_WIDTH / 2),
@@ -35,20 +36,17 @@ Stage1::Stage1(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory)
     player_->set_stage1(this);
     player_->load_texture_from_path(PLAYER_TEXTURE);
 
-    // Enemies
-    enemies_ = std::make_shared<Enemies>();
+    // Meiling
+    meiling_ = std::make_shared<Meiling>(ctx, factory);
+    meiling_->set_region(WINDOW_WIDTH, 0, ENEMY_WIDTH, ENEMY_HEIGHT);
+    meiling_->load_texture_from_path(ENEMY_TEXTURE);
+    meiling_->set_bullet_health(ENEMY_BULLET_HEALTH);
 }
 
 Stage1::~Stage1() {
     if (t_ != nullptr)
         if (t_->joinable())
             t_->join();
-}
-
-void apply_damage_by_collision(
-    std::shared_ptr<Player>,
-    std::shared_ptr<Enemies>
-    ) {
 }
 
 StageTag Stage1::start() {
@@ -62,7 +60,7 @@ StageTag Stage1::start() {
     // Glue above thread to the player object
     player_->subscribe(std::move(rx));
 
-    // Wait until the client to connect
+    // // Wait for the client to connect
     auto sock = Socket();
     sock.accept_client();
 
@@ -79,20 +77,51 @@ StageTag Stage1::start() {
         SDL_RenderClear(ctx);
 
         player_->lock();
+        auto& m_bullets = meiling_->get_bullets();
+
+        for (auto& b : m_bullets) {
+            if (player_->collided_with(b)) {
+                player_->set_x((WINDOW_WIDTH / 2) + (PLAYER_WIDTH / 2));
+                player_->set_y(WINDOW_HEIGHT - (PLAYER_HEIGHT * 2));
+            }
+        }
+
+        player_->unlock();
+
+        // Update player
+        player_->lock();
         player_->update();
         player_->unlock();
 
-        enemies_->lock();
-        enemies_->update();
-        enemies_->unlock();
+        // Update enemy
+        meiling_->update();
 
-        // Send data via socket
+        // Send a frame data via socket
+
         player_->lock();
-        auto region = player_->get_region();
+        auto p_region = player_->get_region();
         player_->unlock();
 
-        auto data = boost::json::value_from(region);
-        auto data_str = boost::json::serialize(data);
+        auto e_region = meiling_->get_region();
+        auto& e_bullets = meiling_->get_bullets();
+
+        std::vector<SDL_FRect> e_bullets_region;
+        for (auto& bullet : e_bullets) {
+            auto region = bullet->get_region();
+            e_bullets_region.push_back(region);
+        }
+
+        boost::json::object frame;
+
+        auto p_region_json = boost::json::value_from(p_region);
+        auto e_region_json = boost::json::value_from(e_region);
+        auto e_bullets_region_json = boost::json::value_from(e_bullets_region);
+
+        frame["player"] = p_region_json;
+        frame["enemy"] = e_region_json;
+        frame["enemy_bullets"] = e_bullets_region_json;
+
+        auto data_str = boost::json::serialize(frame);
         sock.send_data(data_str);
 
         // Calculate the delay manually
@@ -126,11 +155,12 @@ void Stage1::spawn_worker() {
     std::thread thread([this]{
         debug_log("DEBUG: Stage 1 worker thread has been spawned");
 
-        auto ctx = get_renderer();
-        auto factory = get_factory();
-        auto enemy = std::make_shared<Enemy>(ctx, factory);
+        // auto ctx = get_renderer();
+        // auto factory = get_factory();
 
-        SDL_Delay(1000);
+        /*
+        Do what you whatever you want here
+         */
 
         debug_log("DEBUG: Stage 1 worker thread has been successfully terminated");
     });

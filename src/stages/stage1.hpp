@@ -3,8 +3,7 @@
 #include "../shared.hpp"
 #include "stage.hpp"
 #include "../sprites/player.hpp"
-#include "../sprites/enemy.hpp"
-#include "../sprites/enemies.hpp"
+#include "../sprites/finals/meiling.hpp"
 #include "../socket/socket.hpp"
 
 class Player;
@@ -21,6 +20,6 @@ private:
 
     std::unique_ptr<std::thread> t_{nullptr};
 
-    std::unique_ptr<Player> player_;
-    std::shared_ptr<Enemies> enemies_;
+    std::shared_ptr<Player> player_;
+    std::shared_ptr<Meiling> meiling_;
 };

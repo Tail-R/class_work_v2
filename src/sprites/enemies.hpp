@@ -9,9 +9,8 @@ public:
     void unlock();
     void update();
 
-    std::vector<std::shared_ptr<Enemy>>& get_sprites();
+    std::vector<std::shared_ptr<Enemy>> sprites_;
 
 private:
     std::mutex mtx_;
-    std::vector<std::shared_ptr<Enemy>> sprites_;
 };

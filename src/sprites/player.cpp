@@ -164,7 +164,7 @@ void Player::fire() {
     bullet->set_dx(bullet_dx_);
     bullet->set_dy(bullet_dy_);
     bullet->set_health(bullet_health_);
-    bullet->load_texture_from_path(PLAYER_BULLET_TEXTURE);
+    bullet->set_texture_path(PLAYER_BULLET_TEXTURE);
 
     bullets_.push_back(bullet);
 }
@@ -175,7 +175,7 @@ void Player::update_bullets() {
             bullets_.begin(),
             bullets_.end(),
             [] (std::shared_ptr<Bullet> bullet) {
-                bool expr1 = bullet->stickouted();
+                bool expr1 = bullet->is_dead();
                 bool expr2 = bullet->get_health() < 1;
 
                 return expr1 || expr2;

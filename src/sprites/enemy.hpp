@@ -13,13 +13,16 @@ public:
     void set_bullet_dy(float dy);
     void set_bullet_health(int bullet_health);
 
+    void lock();
+    void unlock();
     void fire();
     void update() override;
+    void update_bullets();
 
     std::vector<std::shared_ptr<Bullet>>& get_bullets();
 
 private:
-    void update_bullets();
+    std::mutex mtx_;
 
     std::vector<std::shared_ptr<Bullet>> bullets_;
     float bullet_dx_{0.0};

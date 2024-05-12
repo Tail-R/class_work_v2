@@ -1,27 +1,25 @@
-OBJS = src/main.cpp \
-	src/app/app.cpp \
-	src/sprites/sprite.cpp \
-	src/sprites/player.cpp \
-	src/sprites/standalone.cpp \
-	src/sprites/enemy.cpp \
-	src/sprites/enemies.cpp \
-	src/sprites/bullet.cpp \
-	src/factory/texture_factory.cpp \
-	src/events/keyevent.cpp \
-	src/stages/stage.cpp \
-	src/stages/stage1.cpp \
-	src/socket/socket.cpp
+OBJS = src/main.o \
+	src/app/app.o \
+	src/sprites/sprite.o \
+	src/sprites/player.o \
+	src/sprites/standalone.o \
+	src/sprites/enemy.o \
+	src/sprites/enemies.o \
+	src/sprites/finals/meiling.o \
+	src/sprites/bullet.o \
+	src/factory/texture_factory.o \
+	src/events/keyevent.o \
+	src/stages/stage.o \
+	src/stages/stage1.o \
+	src/socket/socket.o
 
-C = g++
+CC = g++
 
-C_FLAGS = -std=c++20 -Wall -Wextra
+CXXFLAGS = -std=c++20 -Wall -Wextra -Werror
 
-LINKER_FLAGS = -l SDL2 -l SDL2_image -l boost_json
+LFLAGS = -l SDL2 -l SDL2_image -l boost_json
 
 TARGET = build/main
 
 all : $(OBJS)
-	$(C) $(C_FLAGS) $(OBJS) $(LINKER_FLAGS) -o $(TARGET)
-
-clean :
-	rm ./$(TARGET)
+	$(CC) $(CXXFLAGS) $(OBJS) $(LFLAGS) -o $(TARGET)

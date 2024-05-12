@@ -58,10 +58,19 @@ bool Socket::accept_client() {
 bool Socket::send_data(std::string& data) {
     bool success = true;
 
-    memset(send_buff, 0, SOCKET_BUFF_SIZE * sizeof(char));
-    strcpy(send_buff, data.c_str());
+    if (data.length() >= SOCKET_BUFF_SIZE)
+    {
+        success = false;
+        debug_log("ERROR: Socket buffer overflowed");
+    }
+    else
+    {
+        memset(send_buff, 0, SOCKET_BUFF_SIZE * sizeof(char));
 
-    success = write(data_socket, send_buff, strlen(send_buff) * sizeof(char)) != -1;
+        strcpy(send_buff, data.c_str());
+
+        success = write(data_socket, send_buff, strlen(send_buff) * sizeof(char)) != -1;
+    }
 
     return success;
 }

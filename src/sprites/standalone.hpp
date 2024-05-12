@@ -16,7 +16,7 @@ public:
     void move();
 
     bool collided_with(std::shared_ptr<Sprite> sprite);
-    bool stickouted();
+    bool is_dead();
     int get_health();
 
 private:
@@ -24,5 +24,5 @@ private:
     float dy_{0.0};
     int health_{0};
 
-    bool stickouted_{false};
+    bool dead_{false};
 };

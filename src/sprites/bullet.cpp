@@ -5,6 +5,6 @@ Bullet::Bullet(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory)
 
 void Bullet::update() {
     move();
-    load_texture();
+    update_texture();
     render();
 }

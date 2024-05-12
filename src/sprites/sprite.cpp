@@ -21,13 +21,17 @@ void Sprite::set_texture_path(std::string_view texture_path) {
     texture_path_ = texture_path;
 }
 
-// To-Do: maybe 'update_texture' is more good naming
-void Sprite::load_texture() {
-    if (texture_ == nullptr)
+void Sprite::update_texture() {
+    if (texture_path_ != "")
+    {
         texture_ = factory_->create_texture_from_path(texture_path_);
+    }
+    else
+    {
+        debug_log("WARN: Texture path is not set");
+    }
 }
 
-// To-Do: remove this, and let player to use 'set_texture_path' and 'update_texture'
 void Sprite::load_texture_from_path(std::string_view path) {
     texture_ = factory_->create_texture_from_path(path);
 }

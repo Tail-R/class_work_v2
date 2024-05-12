@@ -7,7 +7,7 @@
 
 class Stage1;
 
-class Player : public Sprite {
+class Player final : public Sprite {
 public:
     Player(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory);
     ~Player();

@@ -24,7 +24,7 @@ void Standalone::move() {
     set_x(next_x);
     set_y(next_y);
 
-    stickouted_ = !(expr1 && expr2);
+    dead_= !(expr1 && expr2);
 }
 
 bool Standalone::collided_with(std::shared_ptr<Sprite> sprite) {
@@ -37,5 +37,5 @@ bool Standalone::collided_with(std::shared_ptr<Sprite> sprite) {
     return expr1 && expr2;
 }
 
-bool Standalone::stickouted() { return stickouted_; }
+bool Standalone::is_dead() { return dead_; }
 int Standalone::get_health() { return health_; }

@@ -5,21 +5,6 @@
 
 #include <boost/json.hpp>
 
-// Define a conversion from the SDL_FRect to boost::json::value
-// void tag_invoke(
-//     boost::json::value_from_tag,
-//     boost::json::value& jv,
-//     SDL_FRect const& region
-//     ) {
-//
-//     jv = {
-//         {"x", region.x},
-//         {"y", region.y},
-//         {"w", region.w},
-//         {"h", region.h}
-//     };
-// }
-
 #include <sys/socket.h>
 #include <sys/un.h>
 
@@ -33,6 +18,7 @@
 #include <mutex>
 #include <atomic>
 #include <cmath>
+#include <random>
 #include <condition_variable>
 #include <optional>
 #include <format>
@@ -52,7 +38,7 @@ constexpr Uint32 IMG_FLAGS = IMG_INIT_PNG | IMG_INIT_JPG;
 // Player properties
 constexpr float PLAYER_WIDTH = 20.0;
 constexpr float PLAYER_HEIGHT = 20.0;
-constexpr float PLAYER_BASE_SPEED = 5.0;
+constexpr float PLAYER_BASE_SPEED = 2.0;
 constexpr float PLAYER_BULLET_WIDTH = 10.0;
 constexpr float PLAYER_BULLET_HEIGHT = 10.0;
 constexpr float PLAYER_BULLET_DX = 0.0;
@@ -67,13 +53,14 @@ constexpr float ENEMY_WIDTH = 20.0;
 constexpr float ENEMY_HEIGHT = 20.0;
 constexpr float ENEMY_BULLET_WIDTH = 10.0;
 constexpr float ENEMY_BULLET_HEIGHT = 10.0;
+constexpr int ENEMY_BULLET_HEALTH = 1;
 constexpr std::string_view ENEMY_TEXTURE = "images/enemy_bullet.png";
 constexpr std::string_view ENEMY_BULLET_TEXTURE = "images/enemy_bullet.png";
 
 // Misc
 constexpr std::string_view TIME_ZONE = "Asia/Tokyo";
-constexpr const char* SOCKET_NAME = "/tmp/mysocket.sock";
-constexpr int SOCKET_BUFF_SIZE = 256;
+constexpr const char* SOCKET_NAME = "/tmp/bullet_hell.sock";
+constexpr int SOCKET_BUFF_SIZE = 16384;
 
 #define DEBUG
 

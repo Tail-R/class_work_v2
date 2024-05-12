@@ -30,7 +30,7 @@ SDL_Texture* TextureFactory::create_texture_from_path(std::string_view path) {
             }
             else
             {
-                debug_log("DEBUG: Texture has been created");
+                // debug_log("DEBUG: Texture has been created");
                 stock_[path] = texture;
 
                 return texture;
@@ -39,7 +39,7 @@ SDL_Texture* TextureFactory::create_texture_from_path(std::string_view path) {
     }
     else
     {
-        debug_log("DEBUG: Cached texture founded");
+        // debug_log("DEBUG: Cached texture founded");
         return stock_.find(path)->second;
     }
 }

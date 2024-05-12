@@ -14,7 +14,7 @@ public:
     void set_h(float h);
     void set_angle(double deg);
     void set_texture_path(std::string_view texture_path);
-    void load_texture();
+    void update_texture();
     void load_texture_from_path(std::string_view path);
 
     void render();
