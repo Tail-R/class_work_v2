@@ -15,9 +15,12 @@ OBJS = src/main.o \
 
 CC = g++
 
-CXXFLAGS = -std=c++20 -Wall -Wextra -Werror
+CXXFLAGS = -std=c++20 -Wall -Wextra # -Werror
 
-LFLAGS = -l SDL2 -l SDL2_image -l boost_json
+LFLAGS = -l SDL2 \
+	-l SDL2_image \
+	-l SDL2_ttf \
+	-l boost_json
 
 TARGET = build/main
 

@@ -1,6 +1,8 @@
 #include "socket.hpp"
 
-Socket::Socket() {
+Socket::Socket(std::string socket_name) {
+    this->socket_name = socket_name;
+    
     listen_socket = socket(
         AF_UNIX,        // Unix domain socket
         SOCK_STREAM,    // TCP
@@ -13,10 +15,10 @@ Socket::Socket() {
     }
 
     // Make sure that there is no previous socket file
-    unlink(socket_name);
+    unlink(socket_name.c_str());
 
     local_addr.sun_family = AF_UNIX;
-    strcpy(local_addr.sun_path, socket_name);
+    strcpy(local_addr.sun_path, socket_name.c_str());
 
     int len = strlen(local_addr.sun_path) + sizeof(local_addr.sun_family);
 
@@ -32,6 +34,16 @@ Socket::Socket() {
         exit(1);
     }
 }
+
+Socket::~Socket() {
+    close(data_socket);
+    unlink(socket_name.c_str());
+
+    debug_log("DEBUG: Socket has been destructed");
+}
+
+void Socket::lock() { mtx_.lock(); }
+void Socket::unlock() { mtx_.unlock(); }
 
 bool Socket::accept_client() {
     bool success = true;
@@ -49,7 +61,6 @@ bool Socket::accept_client() {
     else
     {
         debug_log("DEBUG: Socket connection has been established");
-
     }
 
     return success;
@@ -58,14 +69,14 @@ bool Socket::accept_client() {
 bool Socket::send_data(std::string& data) {
     bool success = true;
 
-    if (data.length() >= SOCKET_BUFF_SIZE)
+    if (data.length() >= SOCK_SEND_BUFF_SIZE)
     {
         success = false;
         debug_log("ERROR: Socket buffer overflowed");
     }
     else
     {
-        memset(send_buff, 0, SOCKET_BUFF_SIZE * sizeof(char));
+        memset(send_buff, 0, SOCK_SEND_BUFF_SIZE * sizeof(char));
 
         strcpy(send_buff, data.c_str());
 
@@ -75,9 +86,35 @@ bool Socket::send_data(std::string& data) {
     return success;
 }
 
-Socket::~Socket() {
-    close(data_socket);
-    unlink(socket_name);
+std::string& Socket::get_socket_name() { return socket_name; }
 
-    debug_log("DEBUG: Socket has been closed");
+ClientSocket::ClientSocket(std::string socket_name) {
+    if ((server_socket = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+        debug_log("FATAL: Error on socket() call");
+        exit(1);
+    }
+
+    remote_addr.sun_family = AF_UNIX;
+    strcpy(remote_addr.sun_path, socket_name.c_str());
+
+    int len = strlen(remote_addr.sun_path) + sizeof(remote_addr.sun_family);
+
+    if (connect(server_socket, (struct sockaddr*)&remote_addr, len) == -1) {
+        debug_log("FATAL: Failed to connect to server socket");
+        exit(1);    
+    }
+
+    debug_log("DEBUG: Client socket is ready");
 }
+
+std::optional<std::string> ClientSocket::recv_data() {
+    memset(recv_buff, 0, SOCK_RECV_BUFF_SIZE * sizeof(char));
+
+    if ((recv(server_socket, recv_buff, SOCK_RECV_BUFF_SIZE, 0)) > 0) {
+        auto data_str = std::string(recv_buff);
+        
+        return data_str;
+    }
+
+    return std::nullopt;
+} 

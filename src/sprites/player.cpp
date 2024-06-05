@@ -7,6 +7,8 @@ Player::~Player() {
     if (t_ != nullptr)
         if (t_->joinable())
             t_->join();
+
+    debug_log("DEBUG: Player has been destructed");
 }
 
 void Player::set_dx(float dx) { dx_ = dx; }
@@ -92,7 +94,7 @@ void Player::subscribe(Channel<std::shared_ptr<KBState>> receiver) {
                 }
                 else
                 {
-                    dx_ = 0;
+                    dx_ = 0.0;
                 }
 
                 if ((*keys)->space == Key::PRESSED)

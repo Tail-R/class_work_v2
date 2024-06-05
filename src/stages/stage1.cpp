@@ -18,6 +18,9 @@ void tag_invoke(
 Stage1::Stage1(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory)
     : Stage{ctx, factory} {
 
+    // Socket
+    sock_ = std::make_unique<Socket>(std::string(SOCKET_NAME));
+
     // Player
     player_ = std::make_shared<Player>(ctx, factory);
 
@@ -47,30 +50,40 @@ Stage1::~Stage1() {
     if (t_ != nullptr)
         if (t_->joinable())
             t_->join();
+
+    debug_log("DEBUG: Stage 1 has been destructed");
 }
 
 StageTag Stage1::start() {
     auto ctx = get_renderer();
     auto factory = get_factory();
 
+    // connect to the agent
+    sock_->accept_client();
+    socket_is_ready_.store(true);
+    debug_log("DEBUG: Socket {} is ready", SOCKET_NAME);
+
     // Spawn a thread that observe the current event
     auto k = KeyEventListener();
-    auto rx = k.activate();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    // auto rx = k.activate();
+    auto rx = k.activate_socket();
 
     // Glue above thread to the player object
     player_->subscribe(std::move(rx));
 
-    // // Wait for the client to connect
-    auto sock = Socket();
-    sock.accept_client();
+    // Invoke the worker thread
+    spawn_worker();
 
+    // Wait until the socket will be ready
+    while (!socket_is_ready_.load());
+    
     auto prev_ticks = SDL_GetTicks();
 
-    spawn_worker(); // Invoke the worker thread
-
     for (;;) {
-        if (player_->quit_.load()) { // ask player to exit the loop
-            quit_.store(true);
+        if (player_->quit_.load() || quit_.load()) { // ask player to exit the loop
             break;
         }
 
@@ -96,8 +109,7 @@ StageTag Stage1::start() {
         // Update enemy
         meiling_->update();
 
-        // Send a frame data via socket
-
+        // Send the frame data via socket
         player_->lock();
         auto p_region = player_->get_region();
         player_->unlock();
@@ -121,8 +133,13 @@ StageTag Stage1::start() {
         frame["enemy"] = e_region_json;
         frame["enemy_bullets"] = e_bullets_region_json;
 
+        // Conversion from c++ obj to the JSON data
         auto data_str = boost::json::serialize(frame);
-        sock.send_data(data_str);
+
+        sock_->lock();
+        if (!sock_->send_data(data_str))
+            quit_.store(true);
+        sock_->unlock();
 
         // Calculate the delay manually
         auto current_ticks = SDL_GetTicks();
@@ -136,6 +153,8 @@ StageTag Stage1::start() {
         SDL_RenderPresent(ctx);
     }
 
+    debug_log("DEBUG: Quitting the stage 1 game loop");
+
     /*
     Don't forget to unsubscribe thread, player object's destructor will
     wait the join of the subscribed thread so this program will freeze.
@@ -146,23 +165,22 @@ StageTag Stage1::start() {
 }
 
 void Stage1::spawn_worker() {
-    if (t_ != nullptr)
-        if (t_->joinable())
+    if (t_ != nullptr) {
+        if (t_->joinable()) {
             t_->detach();
+            debug_log("WARN: Stage 1 worker thread has been detached");
+        }
+    }
 
     t_ = std::make_unique<std::thread>();
 
     std::thread thread([this]{
-        debug_log("DEBUG: Stage 1 worker thread has been spawned");
+        // debug_log("DEBUG: Stage 1 worker thread has been spawned");
 
         // auto ctx = get_renderer();
         // auto factory = get_factory();
 
-        /*
-        Do what you whatever you want here
-         */
-
-        debug_log("DEBUG: Stage 1 worker thread has been successfully terminated");
+        // debug_log("DEBUG: Stage 1 worker thread has been successfully terminated");
     });
 
     if (t_ != nullptr)

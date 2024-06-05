@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 #include <boost/json.hpp>
 
@@ -17,14 +18,16 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <condition_variable>
 #include <cmath>
 #include <random>
-#include <condition_variable>
 #include <optional>
 #include <format>
 #include <chrono>
 
 // Window properties
+constexpr std::string_view WINDOW_FONT = "fonts/ComicShanns2.ttf";
+constexpr int WINDOW_FONT_SIZE = 32;
 constexpr std::string_view WINDOW_TITLE = "Bullet Hell";
 constexpr int WINDOW_WIDTH = 600;
 constexpr int WINDOW_HEIGHT = 800;
@@ -59,8 +62,11 @@ constexpr std::string_view ENEMY_BULLET_TEXTURE = "images/enemy_bullet.png";
 
 // Misc
 constexpr std::string_view TIME_ZONE = "Asia/Tokyo";
-constexpr const char* SOCKET_NAME = "/tmp/bullet_hell.sock";
-constexpr int SOCKET_BUFF_SIZE = 16384;
+constexpr std::string_view SOCKET_DIR = "$XDG_RUNTIME_DIR";
+constexpr std::string_view SOCKET_NAME = "/tmp/bullet_hell.sock";
+constexpr std::string_view KEY_EVENT_SOCKET_NAME = "/tmp/bullet_hell_agent.sock";
+constexpr int SOCK_SEND_BUFF_SIZE = 16384;
+constexpr int SOCK_RECV_BUFF_SIZE = 1;
 
 #define DEBUG
 

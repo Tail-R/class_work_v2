@@ -15,9 +15,12 @@ public:
 
     StageTag start() override;
 
+    std::atomic<bool> socket_is_ready_{false};
+
 private:
     void spawn_worker() override;
 
+    std::unique_ptr<Socket> sock_{nullptr};
     std::unique_ptr<std::thread> t_{nullptr};
 
     std::shared_ptr<Player> player_;

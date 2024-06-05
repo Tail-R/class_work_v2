@@ -2,6 +2,7 @@
 
 #include "../shared.hpp"
 #include "../channel.hpp"
+#include "../socket/socket.hpp"
 
 typedef enum {
     RELEASED,
@@ -24,8 +25,10 @@ public:
     ~KeyEventListener();
 
     Channel<std::shared_ptr<KBState>> activate();
+    Channel<std::shared_ptr<KBState>> activate_socket();
 
 private:
     std::unique_ptr<std::thread> t_{nullptr};
+    std::unique_ptr<ClientSocket> sock_{nullptr};
     std::shared_ptr<KBState> kbstate_{nullptr};
 };

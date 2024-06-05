@@ -83,6 +83,16 @@ bool App::prelude() {
                 {
                     debug_log("DEBUG: SDL image subsystem has been initialized");
                 }
+
+                if (TTF_Init() == -1)
+                {
+                    success = false;
+                    debug_log("ERROR: Failed to initialize the SDL ttf");
+                }
+                else
+                {
+                    debug_log("DEBUG: SDL ttf has been initialized");
+                }
             }
         }
     }
@@ -112,6 +122,7 @@ void App::byebye() {
 
     debug_log("DEBUG: Deallocating application resources");
 
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 }

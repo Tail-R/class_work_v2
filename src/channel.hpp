@@ -91,6 +91,11 @@ public:
         return success ? item : std::nullopt;
     }
 
+    bool closed() {
+        std::lock_guard lock(state_->mtx);
+        return state_->closed;
+    }
+
     void close() {
         if (state_ != nullptr) {
             std::lock_guard lock(state_->mtx);
