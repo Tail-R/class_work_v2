@@ -16,6 +16,7 @@ void Sprite::set_y(float y) { region_.y = y; }
 void Sprite::set_w(float w) { region_.w = w; }
 void Sprite::set_h(float h) { region_.h = h; }
 void Sprite::set_angle(double deg) { angle_ = deg; }
+void Sprite::set_id(unsigned int id) { id_ = id; }
 
 void Sprite::set_texture_path(std::string_view texture_path) {
     texture_path_ = texture_path;
@@ -57,6 +58,7 @@ float Sprite::get_y() { return region_.y; }
 float Sprite::get_w() { return region_.w; }
 float Sprite::get_h() { return region_.h; }
 double Sprite::get_angle() { return angle_; }
+unsigned int Sprite::get_id() { return id_; }
 
 SDL_Renderer* Sprite::get_renderer() { return ctx_; }
 std::shared_ptr<TextureFactory> Sprite::get_factory() { return factory_; }

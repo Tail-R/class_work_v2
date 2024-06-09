@@ -82,7 +82,5 @@ void debug_log(std::format_string<Args...> fmt, Args&&... args) {
         chrono::zoned_time{TIME_ZONE, now},
         format(fmt, forward<Args>(args)...)
     ) << endl;
-#else
-    return;
 #endif
-}
+};

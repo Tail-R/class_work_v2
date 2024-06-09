@@ -8,6 +8,7 @@ OBJS = src/main.o \
 	src/sprites/finals/meiling.o \
 	src/sprites/bullet.o \
 	src/factory/texture_factory.o \
+	src/factory/unique_id_resolver.o \
 	src/events/keyevent.o \
 	src/stages/stage.o \
 	src/stages/stage1.o \

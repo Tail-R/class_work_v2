@@ -1,7 +1,8 @@
 #include "meiling.hpp"
 
 Meiling::Meiling(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory)
-    : Enemy{ctx, factory} {}
+    : Enemy{ctx, factory} {
+}
 
 void Meiling::spiral_shot(int f) {
     if (f % 13 == 0) {
