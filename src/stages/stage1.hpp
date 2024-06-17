@@ -5,6 +5,7 @@
 #include "../sprites/player.hpp"
 #include "../sprites/finals/meiling.hpp"
 #include "../socket/socket.hpp"
+#include "../factory/unique_id_resolver.hpp"
 
 class Player;
 
@@ -22,6 +23,7 @@ private:
 
     std::unique_ptr<Socket> sock_{nullptr};
     std::unique_ptr<std::thread> t_{nullptr};
+    std::unique_ptr<std::thread> q_{nullptr};
 
     std::shared_ptr<Player> player_;
     std::shared_ptr<Meiling> meiling_;

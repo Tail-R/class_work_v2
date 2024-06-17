@@ -13,5 +13,6 @@ private:
     int frame_count_{0};
 
     void spiral_shot(int f);
+    // void spiral_shot_reverse(int f);
     void random_shot();
 };

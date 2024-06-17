@@ -1,10 +1,9 @@
 #include "enemy.hpp"
 
-Enemy::Enemy(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory)
-    : Standalone{ctx, factory} {
+unsigned int gid{0};
 
-    id_manager_ = std::make_unique<UniqueIDResolver>();
-}
+Enemy::Enemy(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory)
+    : Standalone{ctx, factory} {}
 
 void Enemy::set_bullet_dx(float bullet_dx) { bullet_dx_ = bullet_dx; }
 void Enemy::set_bullet_dy(float bullet_dy) { bullet_dy_ = bullet_dy; }
@@ -25,7 +24,6 @@ void Enemy::fire() {
     auto factory = get_factory();
     auto region = get_region();
     auto bullet = std::make_shared<Bullet>(ctx, factory);
-    auto new_id = id_manager_->generate_available_id();
 
     bullet->set_region(
         region.x,
@@ -34,11 +32,11 @@ void Enemy::fire() {
         ENEMY_BULLET_HEIGHT
     );
 
+    bullet->set_id(gid++);
     bullet->set_dx(bullet_dx_);
     bullet->set_dy(bullet_dy_);
     bullet->set_health(bullet_health_);
     bullet->set_texture_path(ENEMY_BULLET_TEXTURE);
-    bullet->set_id(new_id);
 
     bullets_.push_back(bullet);
 }

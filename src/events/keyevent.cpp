@@ -3,7 +3,7 @@
 KeyEventListener::~KeyEventListener() {
     if (t_ != nullptr)
         if (t_->joinable())
-            t_->join();
+            t_->detach();
 }
 
 Channel<std::shared_ptr<KBState>> KeyEventListener::activate() {

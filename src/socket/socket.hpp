@@ -36,11 +36,12 @@ private:
 class ClientSocket {
 public:
     ClientSocket(std::string socket_name);
+    ~ClientSocket();
 
     std::optional<std::string> recv_data();
 
 private:
-    int server_socket{-1};
+    int data_socket{-1};
 
     char recv_buff[SOCK_RECV_BUFF_SIZE];
 

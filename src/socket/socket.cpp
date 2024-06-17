@@ -35,12 +35,7 @@ Socket::Socket(std::string socket_name) {
     }
 }
 
-Socket::~Socket() {
-    close(data_socket);
-    unlink(socket_name.c_str());
-
-    debug_log("DEBUG: Socket has been destructed");
-}
+Socket::~Socket() {}
 
 void Socket::lock() { mtx_.lock(); }
 void Socket::unlock() { mtx_.unlock(); }
@@ -61,6 +56,11 @@ bool Socket::accept_client() {
     else
     {
         debug_log("DEBUG: Socket connection has been established");
+    }
+
+    if (!success) {        
+        close(data_socket);
+        unlink(socket_name.c_str());
     }
 
     return success;
@@ -89,7 +89,7 @@ bool Socket::send_data(std::string& data) {
 std::string& Socket::get_socket_name() { return socket_name; }
 
 ClientSocket::ClientSocket(std::string socket_name) {
-    if ((server_socket = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+    if ((data_socket = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
         debug_log("FATAL: Error on socket() call");
         exit(1);
     }
@@ -99,7 +99,7 @@ ClientSocket::ClientSocket(std::string socket_name) {
 
     int len = strlen(remote_addr.sun_path) + sizeof(remote_addr.sun_family);
 
-    if (connect(server_socket, (struct sockaddr*)&remote_addr, len) == -1) {
+    if (connect(data_socket, (struct sockaddr*)&remote_addr, len) == -1) {
         debug_log("FATAL: Failed to connect to server socket");
         exit(1);    
     }
@@ -107,10 +107,14 @@ ClientSocket::ClientSocket(std::string socket_name) {
     debug_log("DEBUG: Client socket is ready");
 }
 
+ClientSocket::~ClientSocket() {
+    close(data_socket);
+}
+
 std::optional<std::string> ClientSocket::recv_data() {
     memset(recv_buff, 0, SOCK_RECV_BUFF_SIZE * sizeof(char));
 
-    if ((recv(server_socket, recv_buff, SOCK_RECV_BUFF_SIZE, 0)) > 0) {
+    if ((recv(data_socket, recv_buff, SOCK_RECV_BUFF_SIZE, 0)) > 0) {
         auto data_str = std::string(recv_buff);
         
         return data_str;

@@ -9,6 +9,14 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+typedef struct {
+    unsigned int id;
+    float x;
+    float y;
+    float w;
+    float h;
+} TaggedRegion;
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -82,5 +90,7 @@ void debug_log(std::format_string<Args...> fmt, Args&&... args) {
         chrono::zoned_time{TIME_ZONE, now},
         format(fmt, forward<Args>(args)...)
     ) << endl;
+#else
+    return;
 #endif
-};
+}

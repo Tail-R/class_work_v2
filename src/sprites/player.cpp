@@ -6,7 +6,7 @@ Player::Player(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory)
 Player::~Player() {
     if (t_ != nullptr)
         if (t_->joinable())
-            t_->join();
+            t_->detach();
 
     debug_log("DEBUG: Player has been destructed");
 }

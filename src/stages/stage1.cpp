@@ -4,20 +4,39 @@
 void tag_invoke(
     boost::json::value_from_tag,
     boost::json::value& jv,
-    SDL_FRect const& region
+    TaggedRegion const& tr
     ) {
 
     jv = {
-        {"id", 1},
-        {"x", region.x},
-        {"y", region.y},
-        {"w", region.w},
-        {"h", region.h}
+        {"id", tr.id},
+        {"x", tr.x},
+        {"y", tr.y},
+        {"w", tr.w},
+        {"h", tr.h}
     };
 }
 
 Stage1::Stage1(SDL_Renderer* ctx, std::shared_ptr<TextureFactory> factory)
     : Stage{ctx, factory} {
+
+    // Listen if the quit event has emitted
+    q_ = std::make_unique<std::thread>();
+
+    std::thread quit_observer([this]() {
+        SDL_Event event;
+
+        while (SDL_WaitEvent(&event) != 0) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    exit(1);
+
+                default:
+                    break;
+            }
+        }
+    });
+
+    quit_observer.swap(*q_);
 
     // Socket
     sock_ = std::make_unique<Socket>(std::string(SOCKET_NAME));
@@ -52,6 +71,10 @@ Stage1::~Stage1() {
         if (t_->joinable())
             t_->join();
 
+    if (q_ != nullptr)
+        if (q_->joinable())
+            q_->detach();
+
     debug_log("DEBUG: Stage 1 has been destructed");
 }
 
@@ -67,7 +90,7 @@ StageTag Stage1::start() {
     // Spawn a thread that observe the current event
     auto k = KeyEventListener();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     // auto rx = k.activate();
     auto rx = k.activate_socket();
@@ -112,16 +135,16 @@ StageTag Stage1::start() {
 
         // Send the frame data via socket
         player_->lock();
-        auto p_region = player_->get_region();
+        auto p_region = player_->get_tregion();
         player_->unlock();
 
-        auto e_region = meiling_->get_region();
+        auto e_region = meiling_->get_tregion();
         auto& e_bullets = meiling_->get_bullets();
 
-        std::vector<SDL_FRect> e_bullets_region;
+        std::vector<TaggedRegion> e_bullets_region;
         for (auto& bullet : e_bullets) {
-            auto region = bullet->get_region();
-            e_bullets_region.push_back(region);
+            auto tr = bullet->get_tregion();
+            e_bullets_region.push_back(tr);
         }
 
         boost::json::object frame;
@@ -138,8 +161,9 @@ StageTag Stage1::start() {
         auto data_str = boost::json::serialize(frame);
 
         sock_->lock();
-        if (!sock_->send_data(data_str))
+        if (!sock_->send_data(data_str)) {
             quit_.store(true);
+        }
         sock_->unlock();
 
         // Calculate the delay manually

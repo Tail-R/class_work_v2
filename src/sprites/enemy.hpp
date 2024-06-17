@@ -4,7 +4,6 @@
 #include "standalone.hpp"
 #include "bullet.hpp"
 #include "../factory/texture_factory.hpp"
-#include "../factory/unique_id_resolver.hpp"
 
 class Enemy : public Standalone {
 public:
@@ -29,6 +28,4 @@ private:
     float bullet_dx_{0.0};
     float bullet_dy_{0.0};
     int bullet_health_{0};
-
-    std::unique_ptr<UniqueIDResolver> id_manager_;
 };
