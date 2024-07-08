@@ -170,8 +170,9 @@ StageTag Stage1::start() {
         auto current_ticks = SDL_GetTicks();
         auto elapsed = current_ticks - prev_ticks;
 
-        if (elapsed < WINDOW_FRAME_LENGTH)
+        if (elapsed < WINDOW_FRAME_LENGTH) {
             SDL_Delay(WINDOW_FRAME_LENGTH - elapsed);
+        }
 
         prev_ticks = current_ticks;
 
